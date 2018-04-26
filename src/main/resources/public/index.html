@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Javalin WebSockets demo</title>
+</head>
+<body>
+
+<textarea style="width: 100%; height: 100px" id="query" placeholder="Type something ..."></textarea>
+<br>
+<textarea style="width: 100%; height: 100px" readonly id="webanswer"></textarea>
+<script>
+    window.onload = setupWebSocket;
+    function setupWebSocket() {
+        const textQuery = document.querySelector("#query");
+        const textAnswer = document.querySelector("#webanswer");
+        const ws = new WebSocket(`ws://localhost:7070/demo/session1`);
+        ws.onopen = event => {
+            console.log('connection established');
+        }
+        ws.onmessage = messageEvent => {
+            textAnswer.value = messageEvent.data;
+        }
+        ws.onerror = event => {
+            textAnswer.value = 'error';
+        }
+        ws.onclose = closeEvent => {
+            console.log('connection closed');
+            setupWebSocket();
+        }
+
+        //Send message on pressing return
+        textQuery.onkeydown = key =>
+        {
+            if(key.keyCode === 13) {
+                ws.send(textQuery.value);
+                textQuery.value = '';
+            }
+        }
+    }
+</script>
+</body>
+</html>
